@@ -1,3 +1,5 @@
+#-*- coding: utf-8 -*-
+
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response, get_list_or_404
 from django.contrib.auth.decorators import login_required
@@ -8,8 +10,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.conf import settings
+from django.contrib import messages
+from django.shortcuts import render
 
-__all__ = ['login', 'logout',]
 
 service = settings.CAS_SERVICE
 cas_base = settings.CAS_BASE
@@ -43,8 +46,8 @@ def login(request):
         auth_login(request, user)
         name = user.first_name or user.username
         message ="Login succeeded. Welcome, %s." % name
-        user.message_set.create(message=message)
-        return HttpResponseRedirect(next)
+        messages.add_message(request, messages.INFO, message=message)
+        return render(request, 'login.html')
     else:
         return HttpResponseForbidden("Error authenticating with CAS")
 
